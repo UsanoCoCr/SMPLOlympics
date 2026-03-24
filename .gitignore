@@ -133,6 +133,8 @@ data/*
 output/
 log/
 
+*.zip
+*.tar.gz
 *.png
 *.jpg
 stageroom_train/ # tensorboard log
