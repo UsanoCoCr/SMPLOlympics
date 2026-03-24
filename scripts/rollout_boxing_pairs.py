@@ -243,6 +243,8 @@ def rollout(player, args):
     # Each element is a list of frame-dicts; index by env_id
     buffers_p1 = [[] for _ in range(num_envs)]  # player 1 (agent 0)
     buffers_p2 = [[] for _ in range(num_envs)]  # player 2 (agent 1)
+    buffers_reward_p1 = [[] for _ in range(num_envs)]  # per-step reward for player 1
+    buffers_reward_p2 = [[] for _ in range(num_envs)]  # per-step reward for player 2
     env_step_counters = np.zeros(num_envs, dtype=np.int64)  # steps since last reset in each env
     env_had_termination = np.zeros(num_envs, dtype=bool)    # flag: early-term happened
 
@@ -276,13 +278,19 @@ def rollout(player, args):
         obs_dict, r, done, info = player.env_step(player.env, action)
         step += 1
 
-        # ---- record SMPL state for every env ----
+        # ---- record SMPL state + reward for every env ----
         frame_p1 = extract_smpl_frame(task, 0)
         frame_p2 = extract_smpl_frame(task, 1)
+
+        # rew_buf layout: [agent0_env0, ..., agent0_envN, agent1_env0, ..., agent1_envN]
+        rew_p1 = task.rew_buf[0:num_envs].cpu().numpy().copy()              # (num_envs,)
+        rew_p2 = task.rew_buf[num_envs:2*num_envs].cpu().numpy().copy()     # (num_envs,)
 
         for eid in range(num_envs):
             buffers_p1[eid].append({k: v[eid] for k, v in frame_p1.items()})
             buffers_p2[eid].append({k: v[eid] for k, v in frame_p2.items()})
+            buffers_reward_p1[eid].append(float(rew_p1[eid]))
+            buffers_reward_p2[eid].append(float(rew_p2[eid]))
             env_step_counters[eid] += 1
 
         # ---- check which envs are done ----
@@ -315,6 +323,9 @@ def rollout(player, args):
                 # stack frames into arrays
                 seq_p1 = {k: np.stack([f[k] for f in buffers_p1[eid]], axis=0) for k in buffers_p1[eid][0]}
                 seq_p2 = {k: np.stack([f[k] for f in buffers_p2[eid]], axis=0) for k in buffers_p2[eid][0]}
+                # attach per-step reward as (T,) arrays
+                seq_p1['reward'] = np.array(buffers_reward_p1[eid], dtype=np.float32)
+                seq_p2['reward'] = np.array(buffers_reward_p2[eid], dtype=np.float32)
                 saved_sequences.append({
                     'player1': seq_p1,
                     'player2': seq_p2,
@@ -332,6 +343,8 @@ def rollout(player, args):
             # clear buffer for this env regardless
             buffers_p1[eid] = []
             buffers_p2[eid] = []
+            buffers_reward_p1[eid] = []
+            buffers_reward_p2[eid] = []
             env_step_counters[eid] = 0
             env_had_termination[eid] = False
 
@@ -515,6 +528,7 @@ def main(cfg_hydra: DictConfig) -> None:
         #   'body_rot'     : (T, 24, 4)   per-body world rotations (quat)
         #   'body_vel'     : (T, 24, 3)   per-body linear velocities
         #   'body_ang_vel' : (T, 24, 3)   per-body angular velocities
+        #   'reward'       : (T,)         per-step scalar reward
     }
 
     with open(save_path, 'wb') as f:
