@@ -65,13 +65,20 @@ class HumanoidBoxing(humanoid_amp_task.HumanoidAMPTask):
         ########## building for boxing area ##########
         self.bounding_box = torch.tensor([-2.5, 2.5, -2.5, 2.5,]).to(self.device) # x_min, x_max, y_min, y_max
         self.bounding_box_points = torch.tensor([[[-2.5, -2.5, 0], [2.5, 2.5, 0]]]).repeat(self.num_envs, 1, 1).to(self.device)
+        # Reward weights: read from cfg with original defaults so nothing breaks
         self.reward_weights = {
-            'reward_f': 0.3,
-            'reward_v': 0.2,
-            'reward_s': 1.0,
-            'reward_t': 0.5,
-            'reward_h': 0.3
+            'reward_f': cfg["env"].get("reward_f", 0.3),      # facing opponent
+            'reward_v': cfg["env"].get("reward_v", 0.2),      # velocity toward opponent
+            'reward_s': cfg["env"].get("reward_s", 1.0),      # strike force
+            'reward_t': cfg["env"].get("reward_t", 0.5),      # KO termination
+            'reward_h': cfg["env"].get("reward_h", 0.3),      # hand-to-target proximity
         }
+        # Extra tunable constants inside compute_boxing_reward
+        self.tar_speed       = cfg["env"].get("tar_speed", 1.0)        # desired approach speed (m/s)
+        self.vel_err_scale   = cfg["env"].get("vel_err_scale", 4.0)    # sharpness of velocity reward
+        self.facing_err_scale = cfg["env"].get("facing_err_scale", 2.0) # sharpness of facing reward
+        self.head_strike_mul = cfg["env"].get("head_strike_mul", 2.0)  # bonus multiplier for head hits
+        self.strike_divisor  = cfg["env"].get("strike_divisor", 10.0)  # normalizer for strike reward
 
         
 
@@ -283,8 +290,9 @@ class HumanoidBoxing(humanoid_amp_task.HumanoidAMPTask):
 
 
             reward, reward_raw = compute_boxing_reward(root_state, prev_root_state, body_pos, self_fallen, opponent_fallen,
-                                                        contact_force_norm, opponent_contact_force_norm[:,0], 
-                                                        opponent_root_state[:, 0],  opponent_body_pos[:, 0], self._hand_ids, self._target_ids, self.dt, self.reward_weights)
+                                                        contact_force_norm, opponent_contact_force_norm[:,0],
+                                                        opponent_root_state[:, 0],  opponent_body_pos[:, 0], self._hand_ids, self._target_ids, self.dt, self.reward_weights,
+                                                        self.tar_speed, self.vel_err_scale, self.facing_err_scale, self.head_strike_mul, self.strike_divisor)
 
             self.rew_buf[i*self.num_envs:(i+1)*self.num_envs] = reward
                             
@@ -454,13 +462,10 @@ def compute_boxing_observation(self_root_state, self_body_pos, oppo_root_state, 
 
 # borrow from NCP https://github.com/Tencent-RoboticsX/NCP/blob/master/ncp/env/tasks/humanoid_boxing.py
 #@torch.jit.script
-def compute_boxing_reward(root_state, prev_root_pos, body_pos, self_terminated, oppo_terminated, self_force_norm, oppo_force_norm, tar_pos, tar_body_pos, hand_ids, target_ids, dt, reward_weights):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, Dict[str, float]) -> Tuple[Tensor, Tensor]
+def compute_boxing_reward(root_state, prev_root_pos, body_pos, self_terminated, oppo_terminated, self_force_norm, oppo_force_norm, tar_pos, tar_body_pos, hand_ids, target_ids, dt, reward_weights,
+                          tar_speed=1.0, vel_err_scale=4.0, facing_err_scale=2.0, head_strike_mul=2.0, strike_divisor=10.0):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, Dict[str, float], float, float, float, float, float) -> Tuple[Tensor, Tensor]
     reward_f, reward_v, reward_s, reward_t, reward_h = reward_weights['reward_f'], reward_weights['reward_v'], reward_weights['reward_s'], reward_weights['reward_t'], reward_weights['reward_h']
-
-    tar_speed = 1.0
-    vel_err_scale = 4.0
-    facing_err_scale = 2.0
 
     root_pos = root_state[..., 0:3]
     root_rot = root_state[..., 3:7]
@@ -469,7 +474,7 @@ def compute_boxing_reward(root_state, prev_root_pos, body_pos, self_terminated, 
     delta_root_pos = root_pos - prev_root_pos
     root_vel = delta_root_pos / dt
     tar_dir_speed = torch.sum(tar_dir * root_vel[..., :2], dim=-1)
-    
+
     tar_vel_err = tar_speed - tar_dir_speed
     tar_vel_err = torch.clamp_min(tar_vel_err, 0.0)
     vel_reward = torch.exp(-vel_err_scale * (tar_vel_err * tar_vel_err))
@@ -486,8 +491,8 @@ def compute_boxing_reward(root_state, prev_root_pos, body_pos, self_terminated, 
 
     #strike_reward = torch.mean((oppo_force_norm - self_force_norm)[:, target_ids], dim=-1) / 10
     strike_force = (oppo_force_norm - self_force_norm)[:, target_ids]
-    strike_force[:, -1] *= 2
-    strike_reward = torch.mean(strike_force, dim=-1) / 10
+    strike_force[:, -1] *= head_strike_mul
+    strike_reward = torch.mean(strike_force, dim=-1) / strike_divisor
 
     #terminate_reward =torch.clamp_min(oppo_terminated - self_terminated, 0) * ((oppo_force_norm - self_force_norm).sum(dim=-1) > 0).float()
     terminate_reward = oppo_terminated - self_terminated
