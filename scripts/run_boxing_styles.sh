@@ -104,8 +104,8 @@ case "${STYLE}" in
     echo "=== Training AGGRESSIVE (pressure) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_aggressive \
-      env.reward_f=0.2 env.reward_v=0.5 env.reward_s=1.5 env.reward_t=1.0 env.reward_h=0.5 \
-      env.tar_speed=1.5 env.head_strike_mul=3.0 env.strike_divisor=8.0 \
+      +env.reward_f=0.2 +env.reward_v=0.5 +env.reward_s=1.5 +env.reward_t=1.0 +env.reward_h=0.5 \
+      +env.tar_speed=1.5 +env.head_strike_mul=3.0 +env.strike_divisor=8.0 \
       learning.params.config.task_reward_w=0.7 \
       learning.params.config.disc_reward_w=0.3 \
       learning.params.config.switch_frequency=200
@@ -115,9 +115,9 @@ case "${STYLE}" in
     echo "=== Training DEFENSIVE (evasive) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_defensive \
-      env.reward_f=0.5 env.reward_v=0.0 env.reward_s=0.3 env.reward_t=0.0 env.reward_h=0.1 \
-      env.tar_speed=0.3 env.vel_err_scale=2.0 env.facing_err_scale=3.0 \
-      env.head_strike_mul=1.0 env.strike_divisor=15.0 \
+      +env.reward_f=0.5 +env.reward_v=0.0 +env.reward_s=0.3 +env.reward_t=0.0 +env.reward_h=0.1 \
+      +env.tar_speed=0.3 +env.vel_err_scale=2.0 +env.facing_err_scale=3.0 \
+      +env.head_strike_mul=1.0 +env.strike_divisor=15.0 \
       learning.params.config.task_reward_w=0.3 \
       learning.params.config.disc_reward_w=0.7 \
       learning.params.config.switch_frequency=300
@@ -127,9 +127,9 @@ case "${STYLE}" in
     echo "=== Training COUNTER-PUNCHER fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_counter \
-      env.reward_f=0.5 env.reward_v=0.1 env.reward_s=1.2 env.reward_t=0.8 env.reward_h=0.2 \
-      env.tar_speed=0.5 env.vel_err_scale=3.0 env.facing_err_scale=3.0 \
-      env.head_strike_mul=3.0 env.strike_divisor=8.0 \
+      +env.reward_f=0.5 +env.reward_v=0.1 +env.reward_s=1.2 +env.reward_t=0.8 +env.reward_h=0.2 \
+      +env.tar_speed=0.5 +env.vel_err_scale=3.0 +env.facing_err_scale=3.0 \
+      +env.head_strike_mul=3.0 +env.strike_divisor=8.0 \
       learning.params.config.switch_frequency=250
     ;;
 
@@ -137,9 +137,9 @@ case "${STYLE}" in
     echo "=== Training BRAWLER (heavy hitter) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_brawler \
-      env.reward_f=0.1 env.reward_v=0.3 env.reward_s=2.0 env.reward_t=0.5 env.reward_h=0.8 \
-      env.tar_speed=1.2 env.facing_err_scale=1.5 \
-      env.head_strike_mul=1.5 env.strike_divisor=6.0 \
+      +env.reward_f=0.1 +env.reward_v=0.3 +env.reward_s=2.0 +env.reward_t=0.5 +env.reward_h=0.8 \
+      +env.tar_speed=1.2 +env.facing_err_scale=1.5 \
+      +env.head_strike_mul=1.5 +env.strike_divisor=6.0 \
       learning.params.config.task_reward_w=0.8 \
       learning.params.config.disc_reward_w=0.2 \
       learning.params.config.switch_frequency=200
@@ -149,9 +149,9 @@ case "${STYLE}" in
     echo "=== Training OUTFIGHTER (technical) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_outfighter \
-      env.reward_f=0.4 env.reward_v=0.1 env.reward_s=0.6 env.reward_t=0.2 env.reward_h=0.6 \
-      env.tar_speed=0.6 env.vel_err_scale=3.0 env.facing_err_scale=2.5 \
-      env.strike_divisor=12.0 \
+      +env.reward_f=0.4 +env.reward_v=0.1 +env.reward_s=0.6 +env.reward_t=0.2 +env.reward_h=0.6 \
+      +env.tar_speed=0.6 +env.vel_err_scale=3.0 +env.facing_err_scale=2.5 \
+      +env.strike_divisor=12.0 \
       learning.params.config.task_reward_w=0.4 \
       learning.params.config.disc_reward_w=0.6 \
       learning.params.config.switch_frequency=300
@@ -164,35 +164,35 @@ case "${STYLE}" in
       learning.params.config.switch_frequency=250 &
 
     CUDA_VISIBLE_DEVICES=1 ${BASE_CMD} exp_name=boxing_aggressive \
-      env.reward_f=0.2 env.reward_v=0.5 env.reward_s=1.5 env.reward_t=1.0 env.reward_h=0.5 \
-      env.tar_speed=1.5 env.head_strike_mul=3.0 env.strike_divisor=8.0 \
+      +env.reward_f=0.2 +env.reward_v=0.5 +env.reward_s=1.5 +env.reward_t=1.0 +env.reward_h=0.5 \
+      +env.tar_speed=1.5 +env.head_strike_mul=3.0 +env.strike_divisor=8.0 \
       learning.params.config.task_reward_w=0.7 learning.params.config.disc_reward_w=0.3 \
       learning.params.config.switch_frequency=200 &
 
     CUDA_VISIBLE_DEVICES=2 ${BASE_CMD} exp_name=boxing_defensive \
-      env.reward_f=0.5 env.reward_v=0.0 env.reward_s=0.3 env.reward_t=0.0 env.reward_h=0.1 \
-      env.tar_speed=0.3 env.vel_err_scale=2.0 env.facing_err_scale=3.0 \
-      env.head_strike_mul=1.0 env.strike_divisor=15.0 \
+      +env.reward_f=0.5 +env.reward_v=0.0 +env.reward_s=0.3 +env.reward_t=0.0 +env.reward_h=0.1 \
+      +env.tar_speed=0.3 +env.vel_err_scale=2.0 +env.facing_err_scale=3.0 \
+      +env.head_strike_mul=1.0 +env.strike_divisor=15.0 \
       learning.params.config.task_reward_w=0.3 learning.params.config.disc_reward_w=0.7 \
       learning.params.config.switch_frequency=300 &
 
     CUDA_VISIBLE_DEVICES=3 ${BASE_CMD} exp_name=boxing_counter \
-      env.reward_f=0.5 env.reward_v=0.1 env.reward_s=1.2 env.reward_t=0.8 env.reward_h=0.2 \
-      env.tar_speed=0.5 env.vel_err_scale=3.0 env.facing_err_scale=3.0 \
-      env.head_strike_mul=3.0 env.strike_divisor=8.0 \
+      +env.reward_f=0.5 +env.reward_v=0.1 +env.reward_s=1.2 +env.reward_t=0.8 +env.reward_h=0.2 \
+      +env.tar_speed=0.5 +env.vel_err_scale=3.0 +env.facing_err_scale=3.0 \
+      +env.head_strike_mul=3.0 +env.strike_divisor=8.0 \
       learning.params.config.switch_frequency=250 &
 
     CUDA_VISIBLE_DEVICES=4 ${BASE_CMD} exp_name=boxing_brawler \
-      env.reward_f=0.1 env.reward_v=0.3 env.reward_s=2.0 env.reward_t=0.5 env.reward_h=0.8 \
-      env.tar_speed=1.2 env.facing_err_scale=1.5 \
-      env.head_strike_mul=1.5 env.strike_divisor=6.0 \
+      +env.reward_f=0.1 +env.reward_v=0.3 +env.reward_s=2.0 +env.reward_t=0.5 +env.reward_h=0.8 \
+      +env.tar_speed=1.2 +env.facing_err_scale=1.5 \
+      +env.head_strike_mul=1.5 +env.strike_divisor=6.0 \
       learning.params.config.task_reward_w=0.8 learning.params.config.disc_reward_w=0.2 \
       learning.params.config.switch_frequency=200 &
 
     CUDA_VISIBLE_DEVICES=5 ${BASE_CMD} exp_name=boxing_outfighter \
-      env.reward_f=0.4 env.reward_v=0.1 env.reward_s=0.6 env.reward_t=0.2 env.reward_h=0.6 \
-      env.tar_speed=0.6 env.vel_err_scale=3.0 env.facing_err_scale=2.5 \
-      env.strike_divisor=12.0 \
+      +env.reward_f=0.4 +env.reward_v=0.1 +env.reward_s=0.6 +env.reward_t=0.2 +env.reward_h=0.6 \
+      +env.tar_speed=0.6 +env.vel_err_scale=3.0 +env.facing_err_scale=2.5 \
+      +env.strike_divisor=12.0 \
       learning.params.config.task_reward_w=0.4 learning.params.config.disc_reward_w=0.6 \
       learning.params.config.switch_frequency=300 &
 
