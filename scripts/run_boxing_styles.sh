@@ -24,6 +24,7 @@
 #   e.g.:  bash scripts/run_boxing_styles.sh aggressive
 #          bash scripts/run_boxing_styles.sh default
 #          bash scripts/run_boxing_styles.sh all
+#          bash scripts/run_boxing_styles.sh all
 #
 # =============================================================================
 #
@@ -153,6 +154,7 @@ case "${STYLE}" in
     ;;
 
   defensive)
+    echo "=== Training DEFENSIVE (evasive + counter) fighter ==="
     echo "=== Training DEFENSIVE (evasive + counter) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_defensive_v3 \
