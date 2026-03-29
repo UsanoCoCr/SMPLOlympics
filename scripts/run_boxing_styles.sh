@@ -32,6 +32,7 @@
 # │         total weight sum ≈ 2.3 | strike params LOCKED to original          │
 # ├──────────────┬────────┬────────┬────────┬────────┬────────┬────────────────┤
 # │              │ rwd_f  │ rwd_v  │ rwd_s  │ rwd_t  │ rwd_h  │ sum   notes   │
+# │              │ rwd_f  │ rwd_v  │ rwd_s  │ rwd_t  │ rwd_h  │ sum   notes   │
 # │              │(facing)│ (vel)  │(strike)│  (KO)  │ (hit)  │               │
 # ├──────────────┼────────┼────────┼────────┼────────┼────────┼────────────────┤
 # │ orig paper   │  0.3   │  0.2   │  1.0   │  0.5   │  0.3   │ 2.3  lazy eq  │
@@ -155,6 +156,7 @@ case "${STYLE}" in
     ;;
 
   defensive)
+    echo "=== Training DEFENSIVE (evasive + counter) fighter ==="
     echo "=== Training DEFENSIVE (evasive + counter) fighter ==="
     CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
       exp_name=boxing_defensive_v4 \
