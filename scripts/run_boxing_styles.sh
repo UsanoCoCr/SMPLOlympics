@@ -136,7 +136,7 @@ case "${STYLE}" in
 
   default)
     echo "=== Training DEFAULT v4 (lazy-eq fix, stable variance) ==="
-    CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
+    CUDA_VISIBLE_DEVICES=3 ${BASE_CMD} \
       exp_name=boxing_default_v4 \
       +env.reward_f=0.15 +env.reward_v=0.10 +env.reward_h=0.55 \
       learning.params.config.task_reward_w=0.6 \
@@ -146,7 +146,7 @@ case "${STYLE}" in
 
   aggressive)
     echo "=== Training AGGRESSIVE (pressure) fighter ==="
-    CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
+    CUDA_VISIBLE_DEVICES=1 ${BASE_CMD} \
       exp_name=boxing_aggressive_v4 \
       +env.reward_f=0.05 +env.reward_v=0.15 +env.reward_h=0.60 \
       +env.tar_speed=1.5 \
@@ -169,7 +169,7 @@ case "${STYLE}" in
 
   counter)
     echo "=== Training COUNTER-PUNCHER fighter ==="
-    CUDA_VISIBLE_DEVICES=0 ${BASE_CMD} \
+    CUDA_VISIBLE_DEVICES=2 ${BASE_CMD} \
       exp_name=boxing_counter_v4 \
       +env.reward_f=0.20 +env.reward_v=0.05 +env.reward_h=0.55 \
       +env.tar_speed=0.4 +env.vel_err_scale=3.0 +env.facing_err_scale=3.0 \
