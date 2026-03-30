@@ -1,4 +1,6 @@
 """
+Created by kzx
+
 Visualize paired boxing rollout data (from rollout_boxing_pairs.py).
 
 Renders two SMPL skeletons (player1=blue, player2=red) with per-step
